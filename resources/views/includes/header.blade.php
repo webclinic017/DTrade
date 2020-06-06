@@ -1,7 +1,7 @@
 <el-menu id="header" mode="horizontal">
-    <menu-item onclick="window.location.href='{{ url("/") }}'">
-        <h3>{{ config('app.name', 'Laravel') }}</h3>
-    </menu-item>
+    <el-menu-item onclick="window.location.href='{{ url("/") }}'">
+        <img id="logo" src="/logo.png" title="{{ config('app.name', 'Laravel') }}" alt="{{ config('app.name', 'Laravel') }}" />
+    </el-menu-item>
     @guest
         <el-menu-item onclick='window.location.href="{{ route('login') }}"'>
            Login
@@ -14,6 +14,9 @@
     @else
         <el-submenu index="1" style="margin-left: 36px">
             <template slot="title">{{ Auth::user()->name }}</template>
+            <el-menu-item onclick="window.location.href='{{ route('profile.index') }}'">
+                Profile
+            </el-menu-item>
             <el-menu-item onclick="document.getElementById('logout-form').submit()">
                 Logout
             </el-menu-item>

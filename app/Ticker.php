@@ -2,16 +2,21 @@
 
 namespace App;
 
+use App\Exceptions\AlphaVantageException;
+use App\Jobs\Stocks\AnalyzeStock;
+use App\Jobs\Stocks\CheckAccuracy;
 use App\Jobs\Stocks\DownloadTickerHistory;
 use App\Support\Database\CacheQueryBuilder;
 use App\Traits\StockIndicators;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class Ticker extends Model
 {
-    use StockIndicators, CacheQueryBuilder;
+    use StockIndicators;
+    use CacheQueryBuilder;
 
     protected $fillable = ['symbol'];
     protected $hidden = ['data'];
@@ -75,17 +80,36 @@ class Ticker extends Model
         return self::where('symbol', strtoupper($symbol))->exists();
     }
 
+    private static function requireAlphaVantageAPI()
+    {
+        $user = Auth::user();
+        if ($user instanceof User) {
+            $dataSource = $user->dataSource;
+            if ($dataSource && $dataSource instanceof AlphaVantageApi) {
+                return true;
+            }
+        }
+
+        throw new AlphaVantageException();
+    }
+
     public static function fetch($symbol, $recurse = true)
     {
         $symbol = strtoupper($symbol);
         $ticker = self::where('symbol', $symbol)->first();
         if ($ticker == null && $recurse) {
+            self::requireAlphaVantageAPI();
+
             $tickerId = DB::table('tickers')->insertGetId([
                 'symbol'     => $symbol,
                 'created_at' => Carbon::now(),
             ]);
+
             Stock::create(['ticker_id' => $tickerId]);
-            DownloadTickerHistory::dispatch($symbol);
+            DownloadTickerHistory::withChain([
+                new AnalyzeStock($symbol),
+                new CheckAccuracy($symbol),
+            ])->dispatch($symbol);
 
             return self::fetch($symbol, false);
         }

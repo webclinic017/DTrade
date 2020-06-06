@@ -11,9 +11,14 @@
 |
 */
 
-use Illuminate\Support\Facades\Auth;
+use App\Portfolio;
+use App\User;
 use Illuminate\Support\Facades\Broadcast;
 
-//Broadcast::channel('portfolios', function ($user) {
-//    return Auth::check();
-//});
+Broadcast::channel('jobs', function (User $user) {
+    return $user->hasRole('admin');
+});
+
+Broadcast::channel('portfolio.{portfolio}', function (User $user, Portfolio $portfolio) {
+    return $user->id === $portfolio->user->id;
+});

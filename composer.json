@@ -21,7 +21,7 @@
         "laravel/passport": "^7.0",
         "laravel/tinker": "^1.0",
         "lukasyelle/dusk-prodsafe": "v5.5.3",
-        "php-ai/php-ml": "^0.8.0",
+        "php-ai/php-ml": "^0.9.0",
         "pusher/pusher-php-server": "^3.3",
         "radicalloop/eodhistoricaldata": "^1.0",
         "spatie/laravel-permission": "^2.29"

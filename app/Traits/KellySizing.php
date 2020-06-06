@@ -18,20 +18,20 @@ trait KellySizing
      *
      * @return float - The mapped profit/loss percent to be expected.
      */
-    private function getVerdictFor(string $profitOrLoss)
+    public function getVerdictFor(string $profitOrLoss)
     {
         if ($this instanceof StockProjection) {
             $probabilities = $this->getBroadOutcome($profitOrLoss)->toArray();
             $mostLikelyMagnitude = array_keys($probabilities, max($probabilities))[0];
             switch ($mostLikelyMagnitude) {
                 case "probability_large_$profitOrLoss":
-                    return 0.08;
+                    return 0.10; // A large P/L is expected to have a delta of +/- 10%
                     break;
                 case "probability_moderate_$profitOrLoss":
-                    return 0.04;
+                    return 0.05; // A moderate P/L is expected to have a delta of +/- 5%
                     break;
                 case "probability_small_$profitOrLoss":
-                    return 0.01;
+                    return 0.02; // A small P/L is expected to have a delta of +/- 2%
                     break;
             }
         }

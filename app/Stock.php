@@ -11,11 +11,13 @@ use Illuminate\Support\Collection;
 
 class Stock extends Model
 {
-    use StockIndicators, StockAnalysis, CacheQueryBuilder;
+    use StockIndicators;
+    use StockAnalysis;
+    use CacheQueryBuilder;
 
     protected $fillable = ['ticker_id'];
     protected $hidden = ['id', 'created_at', 'updated_at', 'ticker_id', 'data', 'projections', 'ticker'];
-    protected $appends = ['symbol', 'value', 'nextDay', 'fiveDay', 'tenDay', 'lastUpdatedAt', 'lastUpdate', 'quickLook'];
+    protected $appends = ['symbol', 'value', 'nextDay', 'fiveDay', 'tenDay', 'lastUpdatedAt', 'lastUpdate', 'quickLook', 'averageKellySize'];
 
     public function ticker()
     {
@@ -42,7 +44,7 @@ class Stock extends Model
         return $this->belongsToMany(Portfolio::class);
     }
 
-    public static function fetch($ticker) : self
+    public static function fetch($ticker): self
     {
         return Ticker::fetch($ticker)->stock;
     }
@@ -50,6 +52,26 @@ class Stock extends Model
     public function getSymbolAttribute()
     {
         return $this->ticker['symbol'];
+    }
+
+    public function getAverageKellySizeAttribute()
+    {
+        $projections = $this->projections()->limit(3)->get();
+        $trueAverage = $projections->pluck('kellyPositionSize')->avg();
+
+        return round($trueAverage, 2);
+    }
+
+    public function getRecommendedPositionAttribute()
+    {
+        if (auth()->check()) {
+            $user = auth()->user();
+            $avgKellySize = $this->averageKellySize / 10;
+
+            return ($user->portfolio->cash * $avgKellySize) / $this->value;
+        }
+
+        return 0;
     }
 
     /**
@@ -118,12 +140,14 @@ class Stock extends Model
     private function getVerdictFor(string $timePeriod)
     {
         $projectionAndAccuracy = $this->getProjectionAndAccuracyFor($timePeriod);
-        $verdict = $projectionAndAccuracy['projection']['verdict'];
+        $projection = $projectionAndAccuracy['projection'];
+        $verdict = $projection['verdict'];
         $accuracy = $projectionAndAccuracy['accuracy']['accuracy_'.str_replace(' ', '_', $verdict)] * 100;
 
         return [
             'verdict'   => $verdict,
             'accuracy'  => round($accuracy),
+            'kellySize' => round($projection['kellyPositionSize'], 2),
         ];
     }
 

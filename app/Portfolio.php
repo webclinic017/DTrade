@@ -6,14 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Portfolio extends Model
 {
-    protected $appends = ['value'];
-    protected $fillable = ['user_id', 'platform_data_id'];
+    protected $appends = ['value', 'stocks'];
+    protected $fillable = ['cash', 'user_id', 'platform_data_id'];
 
     public function getValueAttribute()
     {
-        $stocks = $this->stocks;
+        $value = $this->cash;
+        $this->stocks->each(function (Stock $stock) use (&$value) {
+            $value += $stock->value * $stock->pivot->shares;
+        });
 
-        return $stocks->value * $stocks->pivot->shares;
+        return $value;
     }
 
     public function stocks()
@@ -24,5 +27,10 @@ class Portfolio extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function platform()
+    {
+        return $this->belongsTo(PlatformData::class);
     }
 }

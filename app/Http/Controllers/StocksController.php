@@ -6,6 +6,7 @@ use App\Charts\Stocks\StockIndicators;
 use App\Charts\Stocks\StockPriceChart;
 use App\Charts\Stocks\StockProjections;
 use App\Stock;
+use Illuminate\Support\Facades\Auth;
 
 class StocksController extends Controller
 {
@@ -26,7 +27,7 @@ class StocksController extends Controller
      */
     public function index()
     {
-        return view('stocks.list', [
+        return view('pages.stocks.list', [
             'stocks' => Stock::all(),
         ]);
     }
@@ -37,8 +38,10 @@ class StocksController extends Controller
         $price = new StockPriceChart($stock);
         $projections = new StockProjections($stock);
         $indicators = new StockIndicators($stock);
+        $portfolio = Auth::user()->portfolio;
 
-        return view('stocks.stock', [
+        return view('pages.stocks.stock', [
+            'portfolio' => $portfolio ? $portfolio : 'null',
             'stock'     => $stock,
             'charts'    => [
                 'price'         => $price,

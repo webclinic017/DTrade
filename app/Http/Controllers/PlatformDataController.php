@@ -18,9 +18,14 @@ class PlatformDataController extends Controller
         $platform = new PlatformData();
         $platform->platform = $validatedData['platform'];
         $platform->username = $validatedData['username'];
-        $platform->password = encrypt($validatedData['username']);
+        $platform->password = encrypt($validatedData['password']);
         $platform->save();
 
         $request->user()->platforms()->associate($platform);
+    }
+
+    public function list(Request $request)
+    {
+        // List all platforms for the logged in user
     }
 }

@@ -2,11 +2,8 @@
 
 namespace App\Jobs\Robinhood;
 
-use App\Events\PortfoliosUpdated;
+use App\Events\PortfolioUpdated;
 use App\Jobs\BrowserJob;
-use Facebook\WebDriver\Chrome\ChromeOptions;
-use Facebook\WebDriver\Remote\DesiredCapabilities;
-use Facebook\WebDriver\Remote\RemoteWebDriver;
 
 class RefreshPortfolioJob extends BrowserJob
 {
@@ -32,27 +29,7 @@ class RefreshPortfolioJob extends BrowserJob
 
     public function tearDown()
     {
-        \Log::debug($this->user->portfolios());
-        event(new PortfoliosUpdated($this->user->portfolios()));
-    }
-
-    /**
-     * Create the RemoteWebDriver instance.
-     *
-     * @return \Facebook\WebDriver\Remote\RemoteWebDriver
-     */
-    protected function driver()
-    {
-        $options = (new ChromeOptions())->addArguments([
-            '--disable-gpu',
-            '--headless',
-            '--window-size=1920,1080',
-            '--no-sandbox',
-        ]);
-
-        return RemoteWebDriver::create(
-            'http://localhost:9515', DesiredCapabilities::chrome()->setCapability(
-            ChromeOptions::CAPABILITY, $options
-        ));
+        \Log::debug($this->user);
+        event(new PortfolioUpdated($this->user));
     }
 }

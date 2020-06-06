@@ -9,7 +9,9 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use Notifiable, HasApiTokens, HasRoles;
+    use Notifiable;
+    use HasApiTokens;
+    use HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -34,9 +36,9 @@ class User extends Authenticatable
         return $this->hasMany(PlatformData::class);
     }
 
-    public function portfolios()
+    public function portfolio()
     {
-        return $this->platforms()->select('platform', 'updated_at')->get();
+        return $this->hasOne(Portfolio::class);
     }
 
     public function dataSource()

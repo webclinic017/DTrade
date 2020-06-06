@@ -1,0 +1,44 @@
+@import '../_variables';
+
+.profile {
+    .el-header {
+
+        height: auto !important;
+
+        h1 {
+
+            margin: 0;
+            padding: 20px;
+            text-align: left;
+            background-color: $bright;
+            font-family: Raleway, serif;
+
+            * {
+
+                font-size: 2rem;
+                font-weight: 400 !important;
+            }
+
+            a {
+
+                color: $dark !important;
+
+                &:hover{
+
+                    cursor: pointer;
+                    border-bottom: 2px solid $dark;
+
+                }
+
+            }
+
+        }
+
+        .uk-heading-divider {
+
+            margin-bottom: 0;
+
+        }
+
+    }
+}

@@ -91,14 +91,14 @@ trait StockAnalysis
 
         // test group
         $testSamples = $dataset->getTestSamples();
-        $testLables = $dataset->getTestLabels();
+        $testLabels = $dataset->getTestLabels();
         $predictedLabels = collect($testSamples)->map(function ($sample) use ($classifier) {
             $probabilities = collect($classifier->predictProbability($sample));
 
             return $probabilities->search($probabilities->max());
         })->toArray();
 
-        $report = new ClassificationReport($testLables, $predictedLabels, 1);
+        $report = new ClassificationReport($testLabels, $predictedLabels, 1);
 
         return $report->getF1score();
     }

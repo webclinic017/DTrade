@@ -26,7 +26,7 @@
             </el-card>
         </el-col>
         <el-col :span="8">
-            <dashboard-portfolios initial_portfolios="{{ $portfolios }}"></dashboard-portfolios>
+            <dashboard-portfolios initial_portfolios="{{ $portfolio }}"></dashboard-portfolios>
         </el-col>
     </el-row>
 </div>

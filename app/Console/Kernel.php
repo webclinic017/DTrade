@@ -25,7 +25,7 @@ class Kernel extends ConsoleKernel
     ];
 
     // How long to wait between updating the most outdated stocks.
-    public static $updateInterval = 12;
+    public static $updatesPerMinute = 4;
 
     public static function analyzeStocks()
     {
@@ -44,13 +44,28 @@ class Kernel extends ConsoleKernel
         time_sleep_until($now->addSeconds($numberSeconds)->timestamp);
     }
 
+    /**
+     * Update the most outdated ticker $updatesPerMinute times a minute.
+     *
+     * By default this is set to 4, one less than the Alpha Vantage Free API
+     * limit. This may change if we need more manual requests in the future, or
+     * if we upgrade our API to one of their paid services.
+     *
+     * If we do end up upgrading, we should add the ability for this to be
+     * configurable on a per-api basis, not globally as it is right now. This
+     * would also allow our users to set the number of times a minute they would
+     * like us to update their stocks. A potential way to do this would be to
+     * run the update job 30 times a minute, and have a check in each data source
+     * to see if it is being run too frequently for its API tier.
+     */
     public static function keepTickersUpdated(Carbon &$now = null)
     {
         $now = ($now === null) ? Carbon::now() : $now;
+        $updateInterval = 60 / self::$updatesPerMinute;
 
-        for ($i = 0; $i < (60 / self::$updateInterval); $i++) {
+        for ($i = 0; $i < self::$updatesPerMinute; $i++) {
             UpdateAlphaVantageApiTickers::dispatch();
-            self::sleepFor(self::$updateInterval, $now);
+            self::sleepFor($updateInterval, $now);
         }
     }
 

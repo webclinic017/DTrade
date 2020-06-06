@@ -34,7 +34,7 @@
                 </el-form-item>
                 <el-form-item label="{{ __('Confirm Password') }}">
                     <div class="el-input">
-                        <input id="password" type="password" class="el-input__inner" name="password" required>
+                        <input id="password_confirmation" type="password" class="el-input__inner" name="password_confirmation" required>
                     </div>
                 </el-form-item>
                 <button type="submit" class="el-button el-button--primary full-width">Register</button>

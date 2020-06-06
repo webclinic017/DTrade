@@ -76,6 +76,7 @@
 
         &__projections {
             width: 100%;
+            padding-top: 10px;
             padding-bottom: 9px;
             overflow: hidden;
 
@@ -125,6 +126,8 @@
                 &__accuracy {
                     padding-left: 10px;
                     padding-right: 10px;
+                    margin-bottom: 20px;
+                    margin-top:  13px;
                 }
             }
         }
