@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\ModelParameter;
 use App\Stock;
 use App\TrainedStockModel;
 use Phpml\Classification\SVC;
@@ -13,6 +14,42 @@ use Phpml\SupportVectorMachine\Kernel;
 
 trait StockAnalysis
 {
+    public $cost = 5;
+    public $degree = 3;
+    public $gamma = 3;
+    public $tolerance = 0.001;
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::retrieved(function ($model) {
+            self::loadParameters($model);
+        });
+
+        static::saving(function ($model) {
+            self::saveParameters($model);
+        });
+    }
+
+    public static function saveParameters($model)
+    {
+        if ($model instanceof Stock && $model->modelParameters) {
+            $model->saveModelParameters();
+        }
+    }
+
+    public static function loadParameters($model)
+    {
+        if ($model instanceof Stock) {
+            if ($model->modelParameters) {
+                $model->loadModelParameters();
+            } else {
+                ModelParameter::initiate($model);
+            }
+        }
+    }
+
     public function makeInformedProjection(Estimator $classifier)
     {
         $projection = collect($classifier->predictProbability(array_values($this->trendIndicators()->last())));
@@ -25,11 +62,11 @@ trait StockAnalysis
     {
         $classifier = new SVC(
             Kernel::RBF,
-            5,
-            3,
-            3,
-            1.1,
-            0.001,
+            $this->cost,
+            $this->degree,
+            $this->gamma,
+            0,
+            $this->tolerance,
             100,
             true,
             true
@@ -125,5 +162,22 @@ trait StockAnalysis
         });
 
         return $averages;
+    }
+
+    public function loadModelParameters()
+    {
+        $this->cost = $this->modelParameters->cost;
+        $this->degree = $this->modelParameters->gamma;
+        $this->gamma = $this->modelParameters->gamma;
+        $this->tolerance = $this->modelParameters->tolerance;
+    }
+
+    public function saveModelParameters()
+    {
+        $this->modelParameters->cost = $this->cost;
+        $this->modelParameters->gamma = $this->degree;
+        $this->modelParameters->gamma = $this->gamma;
+        $this->modelParameters->tolerance = $this->tolerance;
+        $this->modelParameters->save();
     }
 }

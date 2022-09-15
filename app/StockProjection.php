@@ -2,14 +2,17 @@
 
 namespace App;
 
+use App\Events\StockUpdated;
 use App\Support\Database\CacheQueryBuilder;
 use App\Traits\KellySizing;
+use App\Traits\SavesTrials;
 use Illuminate\Database\Eloquent\Model;
 
 class StockProjection extends Model
 {
     use CacheQueryBuilder;
     use KellySizing;
+    use SavesTrials;
 
     protected $fillable = [
         'stock_id',
@@ -64,5 +67,23 @@ class StockProjection extends Model
     public function getProbabilityProfitAttribute()
     {
         return $this->probabilityBroadOutcome('profit');
+    }
+
+    public static function runTrials(Stock $stock)
+    {
+        return collect([
+            'next day'  => collect($stock->nextDayProjection()),
+            'five day'  => collect($stock->fiveDayProjection()),
+            'ten day'   => collect($stock->tenDayProjection()),
+        ]);
+    }
+
+    public static function makeFor(Stock $stock)
+    {
+        $projections = self::runAndSaveTrials($stock, 'projection_for', 'verdict', 'probability');
+
+        event(new StockUpdated($stock, 'Stock projections have been updated successfully.'));
+
+        return $projections;
     }
 }

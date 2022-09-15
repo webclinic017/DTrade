@@ -28,6 +28,15 @@ abstract class BrowserTask extends BaseTask
         $this->tearDown();
     }
 
+    public function expectsBrowser(Browser $browser)
+    {
+        if ($browser && $browser instanceof Browser) {
+            return $browser;
+        } else {
+            throw new Exception('Browser not passed to browser task');
+        }
+    }
+
     abstract public function execute(User $user = null, Browser $browser = null);
 
     public function getName()

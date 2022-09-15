@@ -3,7 +3,10 @@
         <div class="stock-card__header">
             <h1>Projections</h1>
             <span>Last Updated {{ stock.quickLook.lastProjectionUpdate }}</span>
-            <a href="#">Update Now</a>
+            <a v-if="!isRefreshing" @click="refreshProjections()" href="#">Update Now</a>
+            <div v-else>
+                <i class="el-icon-loading"></i>
+            </div>
         </div>
         <div class="stock-card__projections">
             <div class="projection" v-for="timePeriod in timePeriods" :class="nDayClass(stock[timePeriod])">
@@ -17,9 +20,11 @@
 
 <script>
     export default {
-        props: ['stock'],
+        props: ['passedStock'],
         data () {
             return {
+                stock: this.passedStock,
+                isRefreshing: false,
                 timePeriods: ['nextDay', 'fiveDay', 'tenDay'],
                 timePeriodsReadable: {'nextDay': 'next day', 'fiveDay': 'five day', 'tenDay': 'ten day'}
             };
@@ -28,12 +33,39 @@
             nDayClass: function (day) {
                 return day.verdict;
             },
+            refreshProjections: function () {
+                this.isRefreshing = true;
+                axios.post(`/api/stocks/${this.stock.symbol}/analyze`)
+                    .then(() => {
+                        setTimeout(() => {
+                            this.isRefreshing = false;
+                        }, 3000);
+                    })
+                    .catch((e) => {
+                        this.isRefreshing = false;
+                        this.$notify({
+                            title: 'Error',
+                            message: e.message,
+                            type: 'error',
+                            duration: 2000
+                        })
+                    });
+            }
         },
+        mounted () {
+            Echo.channel('stocks')
+                .listen('StockUpdated', (result) => {
+                    if (this.stock.symbol === result.stock.symbol) {
+                        this.isRefreshing = false;
+                        this.stock = result.stock;
+                    }
+                })
+        }
     }
 </script>
 
 <style scoped lang="scss">
-    @import '../../../sass/variables';
+    @import '../../../../sass/variables';
 
     .stock-card {
         padding: 10px 15px;
@@ -65,7 +97,7 @@
                 }
             }
 
-            a {
+            a, div {
                 display: inline-block;
                 float: right;
                 margin-top: 23px;

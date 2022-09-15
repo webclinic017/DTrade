@@ -13,7 +13,7 @@
                     @foreach($stocks as $stock)
                         <el-row>
                             <el-col>
-                                <stock-row-card :stock="{{ $stock }}"></stock-row-card>
+                                <stock-row-card :passed-stock="{{ $stock }}" :is-in-watchlist="{{ $stock->inWatchlist }}"></stock-row-card>
                             </el-col>
                         </el-row>
                     @endforeach

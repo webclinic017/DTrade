@@ -27,6 +27,6 @@ class StockSearchTask extends BrowserTask
             throw new Exception('Ticker symbol must be sent as the parameter to the task upon initialization.');
         }
         $browser->visit("https://robinhood.com/stocks/$symbol")
-            ->waitForText(strtoupper($symbol), 10);
+                ->waitForText(strtoupper($symbol), 10);
     }
 }

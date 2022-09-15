@@ -7,33 +7,39 @@
         "laravel"
     ],
     "license": "MIT",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/lukasyelle/trader"
+        }
+    ],
     "require": {
         "php": "^7.3",
         "ext-json": "*",
-        "aws/aws-sdk-php": "^3.111",
+        "aws/aws-sdk-php": "^3.172",
         "consoletvs/charts": "6.*",
-        "doctrine/dbal": "^2.9",
-        "fideloper/proxy": "^4.0",
+        "digitonic/iex-cloud-sdk": "^0.2.0",
+        "doctrine/dbal": "^3.0",
+        "fideloper/proxy": "^4.4",
         "kokspflanze/alpha-vantage-api": "^0.5.0",
-        "laratrade/trader": "^1.0",
-        "laravel/framework": "5.8.*",
-        "laravel/horizon": "^2.0",
-        "laravel/passport": "^7.0",
-        "laravel/tinker": "^1.0",
+        "laratrade/trader": "dev-laravel-update",
+        "laravel/framework": "^6.20",
+        "laravel/horizon": "^3.7",
+        "laravel/passport": "^9.3",
+        "laravel/tinker": "^2.5",
         "lukasyelle/dusk-prodsafe": "v5.5.3",
         "php-ai/php-ml": "^0.9.0",
-        "pusher/pusher-php-server": "^3.3",
-        "radicalloop/eodhistoricaldata": "^1.0",
-        "spatie/laravel-permission": "^2.29"
+        "pusher/pusher-php-server": "^4.1",
+        "radicalloop/eodhistoricaldata": "^2.0|^3.0",
+        "spatie/laravel-permission": "^4.0"
     },
     "require-dev": {
-        "barryvdh/laravel-debugbar": "^3.2",
-        "beyondcode/laravel-dump-server": "^1.0",
-        "filp/whoops": "^2.0",
-        "fzaninotto/faker": "^1.4",
+        "barryvdh/laravel-debugbar": "^3.5",
         "mockery/mockery": "^1.0",
-        "nunomaduro/collision": "^2.0",
-        "phpunit/phpunit": "^7.0"
+        "nunomaduro/collision": "^3.0",
+        "phpunit/phpunit": "^8.5.8|^9.3.3",
+        "fakerphp/faker": "^1.9.1",
+        "facade/ignition": "^1.16.4"
     },
     "config": {
         "optimize-autoloader": true,

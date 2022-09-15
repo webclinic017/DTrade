@@ -33,7 +33,7 @@ script:
 after_success:
   - |
     if [ $TRAVIS_BRANCH == "master" ]; then
-      curl https://forge.laravel.com/servers/320283/sites/860947/deploy/http?token=4chtf2VvNzL9CjdFxpqUyXxJJojGMRi8OJd8ZQL2
+      curl https://forge.laravel.com/servers/382754/sites/1073111/deploy/http?token=D2vtUsE6S4sOCeXlWSeB071mJFS9qq3wY3m8shKs
     fi
 
 cache:

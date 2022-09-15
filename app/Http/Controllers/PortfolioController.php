@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Portfolio;
 use App\Stock;
+use Illuminate\Support\Facades\Request;
 
 class PortfolioController extends Controller
 {
@@ -24,37 +25,31 @@ class PortfolioController extends Controller
         return $this->portfolio();
     }
 
-    private function modifyPortfolio(Stock $stock, int $change)
-    {
-        // prepare a query of all stocks in a portfolio, see if the given stock
-        // exists in that list
-        $stocksQuery = $this->portfolio()->stocks();
-        $stockPivot = $stocksQuery->where('stock_id', $stock->id);
-        if ($stockPivot->exists()) {
-            // the stock is already in the users portfolio, change the number of
-            // shares by the given amount. Remove the stock if they sold all
-            // of the shares they have.
-            $stockPivot = $stockPivot->first();
-            $newShares = $stockPivot->pivot->shares + $change;
-            if ($newShares > 0) {
-                $stocksQuery->updateExistingPivot($stockPivot->id, ['shares' => $newShares]);
-            } else {
-                $stocksQuery->detach($stock->id);
-            }
-        } elseif ($change > 0) {
-            // the stock was not in the users portfolio and they bought shares..
-            // add it to their portfolio with the given amount of shares.
-            $stocksQuery->attach($stock->id, ['shares' => $change]);
-        }
-    }
-
     public function addStock(Stock $stock, int $amount)
     {
-        $this->modifyPortfolio($stock, $amount);
+        $this->portfolio()->modifyPortfolio($stock, $amount);
     }
 
     public function removeStock(Stock $stock, int $amount)
     {
-        $this->modifyPortfolio($stock, -$amount);
+        $this->portfolio()->modifyPortfolio($stock, -$amount);
+    }
+
+    public function buy($symbol)
+    {
+        $stock = Stock::fetch($symbol);
+        $amount = Request::get('amount');
+        $this->portfolio()->modifyPortfolio($stock, $amount);
+
+        return response("Launched job to buy $symbol.");
+    }
+
+    public function sell($symbol)
+    {
+        $stock = Stock::fetch($symbol);
+        $amount = Request::get('amount');
+        $this->portfolio()->modifyPortfolio($stock, -$amount);
+
+        return response("Launched job to sell $symbol.");
     }
 }

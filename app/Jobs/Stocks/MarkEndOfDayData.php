@@ -18,6 +18,9 @@ class MarkEndOfDayData extends StockJob
         $lastDataPoint = $stock->data(false)->get()->last();
         if ($lastDataPoint instanceof TickerData && $lastDataPoint->is_intraday) {
             $lastDataPoint->is_intraday = false;
+            if ($lastDataPoint->open === null) {
+                $lastDataPoint->open = $lastDataPoint->previous_close;
+            }
             $lastDataPoint->save();
         }
     }

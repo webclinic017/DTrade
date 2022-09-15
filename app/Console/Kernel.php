@@ -5,7 +5,10 @@ namespace App\Console;
 use App\Jobs\Stocks\AnalyzeStock;
 use App\Jobs\Stocks\CheckAccuracy;
 use App\Jobs\Stocks\MarkEndOfDayData;
-use App\Jobs\Stocks\UpdateAlphaVantageApiTickers;
+use App\Jobs\Stocks\OptimizeModelParameters;
+use App\Jobs\Stocks\RunAutomations;
+use App\Jobs\Stocks\UpdateSharedTickers;
+use App\Jobs\Stocks\UpdateUserTickers;
 use App\Stock;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -24,24 +27,19 @@ class Kernel extends ConsoleKernel
         //
     ];
 
-    // How long to wait between updating the most outdated stocks.
-    public static $updatesPerMinute = 4;
+    public static $userStockUpdatesPerMinute = 4;
+    public static $sharedStockUpdatesPerMinute = 200;
 
     public static function analyzeStocks()
     {
         $symbols = Stock::all()->pluck('symbol');
         $symbols->each(function ($symbol) {
-            AnalyzeStock::dispatch($symbol);
-            CheckAccuracy::dispatch($symbol);
+            AnalyzeStock::withChain([
+                new CheckAccuracy($symbol),
+            ])->dispatch($symbol);
         });
         $symbolsString = '`'.implode('`, ', $symbols->toArray()).'``.';
         Log::debug("Launched chained jobs to analyze, and check prediction accuracy for $symbolsString");
-    }
-
-    public static function sleepFor($numberSeconds, Carbon &$now = null)
-    {
-        $now = ($now === null) ? Carbon::now() : $now;
-        time_sleep_until($now->addSeconds($numberSeconds)->timestamp);
     }
 
     /**
@@ -61,11 +59,15 @@ class Kernel extends ConsoleKernel
     public static function keepTickersUpdated(Carbon &$now = null)
     {
         $now = ($now === null) ? Carbon::now() : $now;
-        $updateInterval = 60 / self::$updatesPerMinute;
+        $updateInterval = 1000000 * (60 / self::$sharedStockUpdatesPerMinute);
+        $sharedUpdatesPerUserUpdate = self::$sharedStockUpdatesPerMinute / self::$userStockUpdatesPerMinute;
 
-        for ($i = 0; $i < self::$updatesPerMinute; $i++) {
-            UpdateAlphaVantageApiTickers::dispatch();
-            self::sleepFor($updateInterval, $now);
+        for ($i = 0; $i < self::$sharedStockUpdatesPerMinute; $i++) {
+            UpdateSharedTickers::dispatch();
+            if ($i % $sharedUpdatesPerUserUpdate === 0) {
+                UpdateUserTickers::dispatch();
+            }
+            usleep($updateInterval);
         }
     }
 
@@ -82,6 +84,11 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             self::keepTickersUpdated();
         })->everyMinute()->weekdays()->between('09:30', '16:00');
+
+        // Ensure automations are run throughout the day
+        $schedule->call(function () {
+            RunAutomations::dispatch();
+        })->hourly()->weekdays()->between('09:30', '16:00');
 
         // At the end of the trading day mark the last intraday update as the
         // EOD data point. Dispatch a minute after market close to allow pending
@@ -102,6 +109,11 @@ class Kernel extends ConsoleKernel
             Artisan::call('horizon:snapshot');
             Log::debug('horizon:snapshot');
         })->hourly();
+
+        $schedule->call(function () {
+            $stocks = Stock::all()->pluck('symbol')->toArray();
+            OptimizeModelParameters::dispatch($stocks);
+        })->twiceDaily(7, 17);
     }
 
     /**

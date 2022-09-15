@@ -103,6 +103,15 @@ abstract class BaseTask
         $this->tearDown();
     }
 
+    public function expectsUser(User $user)
+    {
+        if ($user && $user instanceof User) {
+            return $user;
+        } else {
+            throw new Exception('User not passed to task.');
+        }
+    }
+
     /**
      * @param User|null $user
      *

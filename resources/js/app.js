@@ -26,8 +26,6 @@ Vue.prototype.$http = window.axios;
 const files = require.context('./', true, /\.vue$/i);
 files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default));
 
-// Vue.component('dashboard-portfolio-card', require('./components/DashboardPortfolioCard.vue').default);
-//
 Vue.component(
     'passport-clients',
     require('./components/passport/Clients.vue')
@@ -45,27 +43,47 @@ Vue.component(
 
 Vue.component(
     'stock-row-card',
-    require('./components/stocks/RowCard.vue').default
+    require('./components/pages/stocks/RowCard.vue').default
+);
+
+Vue.component(
+    'event-receiver',
+    require('./components/global/EventReceiver').default
 );
 
 Vue.component(
     'stock-today-card',
-    require('./components/stocks/TodayCard').default
+    require('./components/pages/stocks/TodayCard').default
+);
+
+Vue.component(
+    'dashboard-portfolios',
+    require('./components/pages/home/DashboardPortfolios').default
+);
+
+Vue.component(
+    'dashboard-portfolio-card',
+    require('./components/pages/home/DashboardPortfolioCard').default
 );
 
 Vue.component(
     'stock-summary-projections-card',
-    require('./components/stocks/SummaryProjectionsCard').default
+    require('./components/pages/stocks/SummaryProjectionsCard').default
 );
 
 Vue.component(
     'stock-recommendations-card',
-    require('./components/stocks/RecommendationsCard').default
+    require('./components/pages/stocks/RecommendationsCard').default
 );
 
 Vue.component(
     'profile-nav',
     require('./components/pages/profile/Nav').default
+);
+
+Vue.component(
+    'stock-watchlist-button',
+    require('./components/pages/stocks/WatchlistButtonComponent').default
 );
 
 /**

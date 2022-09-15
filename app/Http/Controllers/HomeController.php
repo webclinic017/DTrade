@@ -23,8 +23,15 @@ class HomeController extends Controller
      */
     public function index()
     {
+        $user = Auth::user();
+        if (!$user->watchlist) {
+            $user->watchlist()->create(['user_id' => $user->id]);
+        }
+
         return view('home', [
-            'portfolio' => Auth::user()->portfolio,
+            'user'      => $user,
+            'portfolio' => $user->portfolio,
+            'watchlist' => $user->watchlist,
         ]);
     }
 }

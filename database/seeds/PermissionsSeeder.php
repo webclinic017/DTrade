@@ -13,14 +13,16 @@ class PermissionsSeeder extends Seeder
      */
     public function run()
     {
-        // Define Roles
-        $admin = Role::create(['name' => 'admin']);
+        if (Role::all()->isEmpty()) {
+            // Define Roles
+            $admin = Role::create(['name' => 'admin']);
 
-        // Define Permissions
-        $viewHorizonDashboard = Permission::create(['name' => 'view horizon dashboard']);
+            // Define Permissions
+            $viewHorizonDashboard = Permission::create(['name' => 'view horizon dashboard']);
 
-        $admin->syncPermissions([
-            $viewHorizonDashboard,
-        ]);
+            $admin->syncPermissions([
+                $viewHorizonDashboard,
+            ]);
+        }
     }
 }

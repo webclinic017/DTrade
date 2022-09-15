@@ -11,7 +11,6 @@
 |
 */
 
-use App\Portfolio;
 use App\User;
 use Illuminate\Support\Facades\Broadcast;
 
@@ -19,6 +18,6 @@ Broadcast::channel('jobs', function (User $user) {
     return $user->hasRole('admin');
 });
 
-Broadcast::channel('portfolio.{portfolio}', function (User $user, Portfolio $portfolio) {
-    return $user->id === $portfolio->user->id;
+Broadcast::channel('user.{userId}', function (User $user, $userId) {
+    return $user->id == $userId;
 });

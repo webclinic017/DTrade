@@ -16,7 +16,7 @@
             <i class="el-icon-setting"></i>
             <span>Settings</span>
         </el-menu-item>
-        <div id="nav-visibility" class="center">
+        <div id="nav-visibility" class="center" v-if="this.window.width > 640">
             <el-button :icon="visibilityIcon" circle @click="toggleCollapse()"></el-button>
         </div>
     </el-menu>
@@ -85,7 +85,7 @@
     @import '~element-ui/lib/theme-chalk/index.css';
     .el-menu {
 
-        height: calc(100vh - 103px);
+        height: calc(100vh - 120px);
 
         #nav-visibility {
 

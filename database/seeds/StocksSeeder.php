@@ -1,6 +1,6 @@
 <?php
 
-use App\Jobs\Stocks\DownloadTickerHistory;
+use App\Stock;
 use Illuminate\Database\Seeder;
 
 class StocksSeeder extends Seeder
@@ -15,14 +15,21 @@ class StocksSeeder extends Seeder
         $desiredTickers = [
             'aapl',
             'amd',
-            'clf',
-            'wti',
-            'hmy',
-            'f',
-            'gpro',
-            'dnr',
+            'sbux',
+            'tsla',
+            'msft',
+            'goog',
+            'pbr',
+            'ibm',
             'ge',
+            'gpro',
+            'wti',
+            'clf',
+            'hmy',
         ];
-        DownloadTickerHistory::dispatch($desiredTickers);
+        foreach ($desiredTickers as $ticker) {
+            Stock::fetch($ticker);
+            sleep(12);
+        }
     }
 }

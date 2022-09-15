@@ -22,9 +22,9 @@ class LogoutTask extends BrowserTask
         }
 
         $browser->waitForText('Account', 10)
-            ->click("a[href='/account']")
-            ->waitForText('Portfolio Value', 10)
-            ->assertSeeIn("a[href='/login']", 'Log Out')
-            ->click("a[href='/login']");
+                ->click("a[href='/account']")
+                ->waitForText('Portfolio Value', 10)
+                ->assertSeeIn("a[href='/login']", 'Log Out')
+                ->click("a[href='/login']");
     }
 }

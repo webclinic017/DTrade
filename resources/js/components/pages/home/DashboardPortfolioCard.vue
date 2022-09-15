@@ -2,12 +2,12 @@
     <el-card class="portfolio" shadow="hover">
         <div slot="header">
             <h3 class="capitalize">
-                {{ title }}
+                {{ portfolio.title }}
                 <i :class="iconClass + ' circle padding transition material-shadow right'" @click="refresh"></i>
             </h3>
         </div>
-        <p>Value: <strong>${{ value }}</strong></p>
-        <span>Last Updated {{ updated }}</span>
+        <p>Value: <strong>${{ portfolio.value }}</strong></p>
+        <span>Last Updated {{ portfolio.updated_at }}</span>
     </el-card>
 </template>
 
@@ -15,13 +15,14 @@
     import ElementUI from 'element-ui'
     export default {
         name: "DashboardPortfolioCard",
-        props: ['title', 'value', 'updated'],
+        props: ['sentPortfolio', 'userId'],
         components: {
             ElementUI,
         },
         data () {
             return {
-                loading: false,
+                portfolio: this.sentPortfolio,
+                loading: false
             }
         },
         computed: {
@@ -44,6 +45,13 @@
                     });
                 }
             }
+        },
+        mounted () {
+            Echo.private(`user.${ this.userId }`)
+                .listen('Portfolio.PortfolioUpdated', (payload) => {
+                    this.portfolio = payload.message;
+                    this.loading = false;
+                });
         }
     }
 </script>

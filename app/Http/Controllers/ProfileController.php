@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\PlatformData;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -54,11 +55,23 @@ class ProfileController extends Controller
         ]);
     }
 
+    private function addPortfolio(PlatformData $platform, $user)
+    {
+        if ($user->portfolio) {
+            if ($user->portfolio->platform_data_id !== $platform->id) {
+                throw new \Exception('Portfolio / Profile Mismatch');
+            }
+        } else {
+            $user->portfolio()->create(['platform_data_id' => $platform->id]);
+        }
+    }
+
     public function saveRobinhood(Request $request)
     {
         $this->robinhoodValidator($request->all())->validate();
 
-        $platforms = Auth::user()->platforms();
+        $user = Auth::user();
+        $platforms = $user->platforms();
         $username = $request->input('username');
         $password = encrypt($request->input('password'));
         $platform = $platforms->where('platform', 'robinhood')->first();
@@ -74,6 +87,8 @@ class ProfileController extends Controller
                 'password' => $password,
             ]);
         }
+
+        $this->addPortfolio($platform, $user);
 
         return redirect(route('profile.robinhood'));
     }

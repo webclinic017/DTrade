@@ -18,4 +18,9 @@ class PlatformData extends Model
     {
         return $this->hasOne(Portfolio::class);
     }
+
+    public function cookies()
+    {
+        return $this->hasOne(PlatformCookies::class);
+    }
 }

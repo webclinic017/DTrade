@@ -1,34 +1,44 @@
 <template>
-    <div class="light-background stock-card material-hover cursor transition" @click="goToStock">
+    <div class="light-background stock-card material-hover cursor transition">
         <el-row>
-            <el-col :sm="14" :xs="24">
-                <div class="stock-card__margin-wrapper top-border">
-                    <h1>{{ stock.symbol }}</h1>
-                    <h4>Last Update<br />{{ stock.quickLook.lastUpdate }}</h4>
-                </div>
-                <div class="stock-card__margin-wrapper bottom-border">
-                    <h1>${{ stock.quickLook.price }}</h1>
-                    <h4>{{ stock.quickLook.change }} ({{ stock.quickLook.changePercent }}%)</h4>
-                </div>
-            </el-col>
-            <el-col :sm="10" :xs="24">
-                <div class="stock-card__projections-wrapper">
-                    <div v-for="timePeriod in timePeriods" :class="nDayClass(stock.quickLook[timePeriod])">
-                        <h1>{{ getProfitLossChance(stock.quickLook[timePeriod]) }}%</h1>
-                        <h2>chance</h2>
-                        <h4>{{ timePeriodsReadable[timePeriod] }}<br />{{ getProfitLoss(stock.quickLook[timePeriod]) }}</h4>
+            <div @click="goToStock">
+                <el-col :sm="14" :xs="24">
+                    <div class="stock-card__margin-wrapper top-border">
+                        <h1>{{ stock.symbol }}</h1>
+                        <h4>Last Update<br />{{ stock.quickLook.lastUpdate }}</h4>
                     </div>
-                </div>
+                    <div class="stock-card__margin-wrapper bottom-border">
+                        <h1>${{ Number(stock.quickLook.price).toFixed(3) }}</h1>
+                        <h4>{{ stock.quickLook.change }} ({{ stock.quickLook.changePercent }}%)</h4>
+                    </div>
+                </el-col>
+                <el-col :sm="10" :xs="24">
+                    <div class="stock-card__projections-wrapper">
+                        <div v-for="timePeriod in timePeriods" :class="nDayClass(stock.quickLook[timePeriod])">
+                            <h1>{{ getProfitLossChance(stock.quickLook[timePeriod]) }}%</h1>
+                            <h2>chance</h2>
+                            <h4>{{ timePeriodsReadable[timePeriod] }}<br />{{ getProfitLoss(stock.quickLook[timePeriod]) }}</h4>
+                        </div>
+                    </div>
+                </el-col>
+            </div>
+        </el-row>
+        <el-row class="stock-card__actions-container transition">
+            <el-col class="center padding" :sm="12" :xs="24">
+                <watchlist-button-component :stock="stock" :is-in-watchlist="isInWatchlist"></watchlist-button-component>
             </el-col>
         </el-row>
     </div>
 </template>
 
 <script>
+    import WatchlistButtonComponent from "./WatchlistButtonComponent";
     export default {
-        props: ['stock'],
+        components: {WatchlistButtonComponent},
+        props: ['passedStock', 'isInWatchlist'],
         data () {
             return {
+                stock: this.passedStock,
                 timePeriods: ['nextDay', 'fiveDay', 'tenDay'],
                 timePeriodsReadable: {'nextDay': 'next day', 'fiveDay': 'five day', 'tenDay': 'ten day'}
             };
@@ -50,12 +60,21 @@
             getProfitLoss: function (day) {
                 return 'profit' in day ? 'profit' : 'loss';
             }
+        },
+        mounted () {
+            Echo.channel('stocks')
+                .listen('StockUpdated', (result) => {
+                    if (this.stock.symbol === result.stock.symbol) {
+                        this.stock = result.stock;
+                    }
+                });
         }
     }
 </script>
 
 <style scoped lang="scss">
-    @import '../../../sass/variables';
+    @import '../../../../sass/variables';
+    @import '../../../../sass/formatting_classes';
 
     .stock-card {
         color: $dark;
@@ -168,6 +187,27 @@
                 &.loss {
                     background-color: $loss-red;
                 }
+            }
+        }
+
+        &:hover {
+            .stock-card__projections-wrapper div:last-of-type {
+                border-bottom-right-radius: 0;
+            }
+
+            .stock-card__actions-container {
+                display: block;
+            }
+        }
+
+        &__actions-container {
+            display: none;
+            background-color: rgba(236, 236, 236, 0.81);
+            border-bottom-left-radius: 5px;
+            border-bottom-right-radius: 5px;
+
+            .center {
+                margin: 0 auto;
             }
         }
     }

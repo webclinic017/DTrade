@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\Robinhood\RefreshPortfolioJob;
+use App\Providers\RouteServiceProvider;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
@@ -31,7 +32,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = RouteServiceProvider::HOME;
 
     /**
      * Create a new controller instance.
@@ -53,7 +54,13 @@ class LoginController extends Controller
         $token->save();
         $user->save();
         $request->session()->push('api_key', $tokenResult->accessToken);
-        RefreshPortfolioJob::dispatch($user);
+        $platform = $user->platforms->first();
+        if ($platform) {
+            if (!$user->portfolio) {
+                $user->portfolio()->create(['platform_data_id' => $platform->id]);
+            }
+            RefreshPortfolioJob::dispatch($user);
+        }
     }
 
     /**

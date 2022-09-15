@@ -26,6 +26,8 @@ abstract class BaseJob implements ShouldQueue
 
     protected $debug = false;
 
+    public $timeout = 180;
+
     public function __construct(User $user = null, $tags = [])
     {
         $this->user = $user;

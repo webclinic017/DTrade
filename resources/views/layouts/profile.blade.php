@@ -6,7 +6,7 @@
 
 @section('body')
     <div class="profile">
-        <el-container style="border: 1px solid #eee; height: calc(100vh - 101px);">
+        <el-container style="border: 1px solid #eee; height: calc(100vh - 120px);">
             <el-aside width="auto">
                 <profile-nav
                     default-activated="@yield('nav-active-index')"
